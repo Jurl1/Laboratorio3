@@ -1,0 +1,27 @@
+name: lab3
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    networks:
+      - lab3_net
+    # Sin "ports:". Solo cloudflared llega a la app por la red interna.
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN}
+    depends_on:
+      - app
+    networks:
+      - lab3_net
+
+  # Fase 1: se agrega el servicio "db" (postgres:17-alpine).
+
+networks:
+  lab3_net:

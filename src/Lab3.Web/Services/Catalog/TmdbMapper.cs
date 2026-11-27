@@ -58,6 +58,7 @@ public static class TmdbMapper
             NameOf(item, type),
             type == TmdbType.Movie ? item.OriginalTitle : item.OriginalName,
             YearOf(type == TmdbType.Movie ? item.ReleaseDate : item.FirstAirDate),
+            DateOf(type == TmdbType.Movie ? item.ReleaseDate : item.FirstAirDate),
             NullIfEmpty(item.Overview),
             NullIfEmpty(item.Tagline),
             item.PosterPath,
@@ -90,6 +91,9 @@ public static class TmdbMapper
             .ThenByDescending(v => v.Official)
             .Select(v => v.Key)
             .FirstOrDefault();
+
+    public static DateOnly? DateOf(string? date) =>
+        DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
 
     public static int? YearOf(string? date) =>
         date is { Length: >= 4 } && int.TryParse(date.AsSpan(0, 4), NumberStyles.None, CultureInfo.InvariantCulture, out var y) ? y : null;

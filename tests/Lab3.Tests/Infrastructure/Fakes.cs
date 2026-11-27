@@ -123,6 +123,8 @@ public sealed class FakeTmdb : ITmdbClient
             (TmdbType.Movie, 603) => Matrix(),
             (TmdbType.Tv, 1429) => AttackOnTitan(),
             (TmdbType.Tv, 1396) => BreakingBad(),
+            (TmdbType.Movie, 1000) => new TmdbItem { Id = 1000, Title = "Película del futuro", ReleaseDate = "2099-12-31" },
+            (TmdbType.Movie, 1001) => new TmdbItem { Id = 1001, Title = "Proyecto sin fecha", ReleaseDate = "" },
             _ => null,
         };
         return Task.FromResult(item);

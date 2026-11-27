@@ -50,6 +50,12 @@ public static class Display
         return s.ToUpperInvariant();
     }
 
+    /// <summary>Fecha de hoy en Argentina (para la regla de estreno).</summary>
+    public static DateOnly Today(TimeProvider clock) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(clock.GetUtcNow().UtcDateTime, ArgentinaTz));
+
+    public static string LongDate(DateOnly date) => date.ToString("d 'de' MMMM 'de' yyyy");
+
     public static string? UserId(this ClaimsPrincipal user) => user.FindFirstValue(ClaimTypes.NameIdentifier);
 
     private static readonly TimeZoneInfo ArgentinaTz = FindTz();

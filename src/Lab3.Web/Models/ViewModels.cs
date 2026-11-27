@@ -174,6 +174,8 @@ public class TitleViewModel
     public ReviewItem? MyReview { get; init; }
     public BookmarkStatus? MyBookmark { get; init; }
     public bool YouTubeEnabled { get; init; }
+    /// <summary>False si todavía no se estrenó: no se puede reseñar.</summary>
+    public bool IsReleased { get; init; } = true;
 }
 
 public class ReviewFormViewModel

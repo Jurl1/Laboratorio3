@@ -67,7 +67,8 @@ public sealed class CatalogService(
 
     public async Task<TitleDetail?> GetDetailAsync(TmdbType type, int tmdbId, CancellationToken ct = default)
     {
-        var key = $"tmdb:{TmdbClient.Segment(type)}:{tmdbId}:{_opt.Language}:{_opt.WatchRegion}";
+        // v2: el DTO suma ReleaseDate (los cacheados antes no la tienen).
+        var key = $"tmdb:v2:{TmdbClient.Segment(type)}:{tmdbId}:{_opt.Language}:{_opt.WatchRegion}";
         // Un 404 también se cachea (como null) para no repetir el pedido a TMDB.
         var holder = await cache.GetOrCreateAsync(key, DetailTtl, async c =>
         {
@@ -103,6 +104,7 @@ public sealed class CatalogService(
         title.Name = Truncate(d.Name, 300);
         title.OriginalName = d.OriginalName is null ? null : Truncate(d.OriginalName, 300);
         title.Year = d.Year;
+        title.ReleaseDate = d.ReleaseDate;
         title.Overview = d.Overview;
         title.PosterPath = d.PosterPath;
         title.BackdropPath = d.BackdropPath;

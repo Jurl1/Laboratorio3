@@ -119,10 +119,10 @@ docker compose -f deploy/docker-compose.yml logs -f app
 | 0 | Infra: LXC, Docker, tunnel, Hello World online | ✅ Hecho (LXC 104, tunnel `lab3` → `http://app:8080`) |
 | 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | ✅ Hecho (online en `https://lab3.juriserver.website`, migración `Inicial` aplicada) |
 | 2 | Usuarios: registro, login, logout, perfil | 🧪 Código + tests OK. Falta probar en el server |
-| 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | 🧪 Código + tests OK (TMDB falso). Falta `Tmdb__ReadAccessToken` y probar con la API real |
+| 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | ✅ Online con TMDB real (home, búsqueda con anime, detalle con trailer, IMDb y dónde ver AR) |
 | 4 | Reviews: CRUD, promedio, likes, spoilers | 🧪 Código + tests OK. Falta probar en el server |
 | 5 | Bookmarks: estados, "Mis listas", perfil público | 🧪 Código + tests OK. Falta probar en el server |
-| 6 | YouTube extra: pestaña "Videos" | 🧪 Código + tests OK (YouTube falso). Falta `YouTube__ApiKey` |
+| 6 | YouTube extra: pestaña "Videos" | ✅ Online: pestaña Videos trae reviews reales de YouTube |
 | 7 | Pulido: responsive, "Acerca de", errores amigables | 🧪 Hecho. Revisado en navegador con datos falsos |
 | 8 | Hardening y entrega: checklist de seguridad, backup, README, datos demo | 🧪 CSP/headers, rate limit, keys en volumen, servicio `backup`, README, `Demo__Seed`. Falta probar backup/restore en el server |
 

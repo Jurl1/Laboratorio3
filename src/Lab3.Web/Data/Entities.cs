@@ -33,6 +33,8 @@ public class Title
     public string Name { get; set; } = "";
     public string? OriginalName { get; set; }
     public int? Year { get; set; }
+    /// <summary>Estreno o primera emisión. Sin fecha o en el futuro: todavía no se puede reseñar.</summary>
+    public DateOnly? ReleaseDate { get; set; }
     public string? Overview { get; set; }
     public string? PosterPath { get; set; }
     public string? BackdropPath { get; set; }
@@ -42,6 +44,15 @@ public class Title
 
     public List<Review> Reviews { get; set; } = [];
     public List<Bookmark> Bookmarks { get; set; } = [];
+
+    public bool IsReleased(DateOnly today) => Release.IsReleased(ReleaseDate, today);
+}
+
+/// <summary>Regla de estreno: solo se reseña lo que ya salió (fecha de TMDB hoy o antes).</summary>
+public static class Release
+{
+    public static bool IsReleased(DateOnly? releaseDate, DateOnly today) =>
+        releaseDate is { } d && d <= today;
 }
 
 public class Review

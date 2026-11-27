@@ -247,6 +247,9 @@ namespace Lab3.Web.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<DateOnly?>("ReleaseDate")
+                        .HasColumnType("date");
+
                     b.Property<int>("TmdbId")
                         .HasColumnType("integer");
 

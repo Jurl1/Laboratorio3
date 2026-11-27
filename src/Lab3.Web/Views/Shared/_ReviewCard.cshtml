@@ -52,6 +52,10 @@
                     {
                         <span class="text-body-secondary small">♥ <span>@Model.LikeCount</span></span>
                         <a class="btn btn-sm btn-link px-1" href="@Display.TitleUrl(Model.TitleType, Model.TitleTmdbId)/review">Editar</a>
+                        <form method="post" action="@Display.TitleUrl(Model.TitleType, Model.TitleTmdbId)/review/borrar"
+                              data-confirm="¿Borrar tu review? No se puede deshacer." class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-link link-danger px-1">Borrar</button>
+                        </form>
                     }
                     else if (signedIn)
                     {

@@ -4,6 +4,7 @@
     var signedIn = User.Identity?.IsAuthenticated == true;
     var userName = signedIn ? UserManager.GetUserName(User) : null;
     var flash = TempData["Flash"] as string;
+    var flashError = TempData["FlashError"] as string;
     var currentQuery = Context.Request.Path.StartsWithSegments("/buscar") ? Context.Request.Query["q"].ToString() : "";
 }
 <!DOCTYPE html>
@@ -80,6 +81,13 @@
         {
             <div class="alert alert-success alert-dismissible fade show" role="status">
                 @flash
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(flashError))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                @flashError
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         }

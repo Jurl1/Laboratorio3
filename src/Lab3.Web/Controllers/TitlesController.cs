@@ -17,6 +17,7 @@ public class TitlesController(
     AppDbContext db,
     IYouTubeClient youtube,
     ApiCache cache,
+    TimeProvider clock,
     ILogger<TitlesController> logger) : Controller
 {
     // ---------- Detalle ----------
@@ -70,6 +71,7 @@ public class TitlesController(
             MyReview = reviews.FirstOrDefault(r => r.IsMine),
             MyBookmark = bookmark,
             YouTubeEnabled = youtube.IsConfigured,
+            IsReleased = Release.IsReleased(detail.ReleaseDate, Display.Today(clock)),
         });
     }
 
@@ -82,6 +84,7 @@ public class TitlesController(
         if (Display.ParseSlug(tipo) is not { } type) return NotFound();
         var title = await EnsureTitle(type, id, ct);
         if (title is null) return NotFound();
+        if (NotReleased(title) is { } blocked) return blocked;
 
         var me = User.UserId()!;
         var existing = await db.Reviews.FirstOrDefaultAsync(r => r.UserId == me && r.TitleId == title.Id, ct);
@@ -104,6 +107,7 @@ public class TitlesController(
         if (Display.ParseSlug(tipo) is not { } type) return NotFound();
         var title = await EnsureTitle(type, id, ct);
         if (title is null) return NotFound();
+        if (NotReleased(title) is { } blocked) return blocked;
 
         var me = User.UserId()!;
         var existing = await db.Reviews.FirstOrDefaultAsync(r => r.UserId == me && r.TitleId == title.Id, ct);
@@ -215,6 +219,17 @@ public class TitlesController(
             // Si TMDB no responde pero el título ya está en la base, se puede reseñar igual.
             return await db.Titles.FirstOrDefaultAsync(t => t.TmdbType == type && t.TmdbId == id, ct);
         }
+    }
+
+    /// <summary>No se reseñan títulos sin estrenar (sin fecha en TMDB o con fecha futura). Borrar sí se puede.</summary>
+    private IActionResult? NotReleased(Title title)
+    {
+        if (title.IsReleased(Display.Today(clock))) return null;
+
+        TempData["FlashError"] = title.ReleaseDate is { } date
+            ? $"{title.Name} se estrena el {Display.LongDate(date)}. Vas a poder reseñarlo cuando salga."
+            : $"{title.Name} todavía no tiene fecha de estreno. Vas a poder reseñarlo cuando salga.";
+        return Redirect(Display.TitleUrl(title.TmdbType, title.TmdbId));
     }
 
     private static ReviewFormViewModel FormFor(Title title) => new()

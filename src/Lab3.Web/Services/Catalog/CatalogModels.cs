@@ -21,6 +21,8 @@ public record TitleDetail(
     string Name,
     string? OriginalName,
     int? Year,
+    /// <summary>Estreno (película) o primera emisión (serie). Null si TMDB no la tiene.</summary>
+    DateOnly? ReleaseDate,
     string? Overview,
     string? Tagline,
     string? PosterPath,

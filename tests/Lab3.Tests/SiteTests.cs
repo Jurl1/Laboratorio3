@@ -306,6 +306,47 @@ public class ReviewAndListTests
         Assert.Equal(0, app.WithDb(db => db.Reviews.Count()));
     }
 
+    [Theory]
+    [InlineData(1000, "Se estrena el 31 de diciembre de 2099")]
+    [InlineData(1001, "Sin fecha de estreno")]
+    public async Task No_se_puede_resenar_lo_que_no_se_estreno(int tmdbId, string aviso)
+    {
+        using var app = new LabFactory();
+        var a = app.Client();
+        await a.RegisterAsync("ana");
+        var url = $"/titulo/pelicula/{tmdbId}";
+
+        var detail = await a.GetStringAsync(url);
+        Assert.Contains(aviso, detail);
+        Assert.DoesNotContain("Escribir review", detail);
+
+        // Ni el formulario ni el POST directo.
+        var res = await a.GetAsync(url + "/review");
+        Assert.Equal(HttpStatusCode.Redirect, res.StatusCode);
+        Assert.Equal(url, res.Headers.Location!.OriginalString);
+        Assert.Contains("Vas a poder reseñarlo cuando salga", await a.GetStringAsync(url));
+
+        res = await a.PostFormAsync("/", url + "/review", Review(8, "Ya la vi en un sueño, buenísima."));
+        Assert.Equal(HttpStatusCode.Redirect, res.StatusCode);
+        Assert.Equal(0, app.WithDb(db => db.Reviews.Count()));
+
+        // Guardarla en "Pendiente" sí se puede.
+        var token = await a.GetTokenAsync(url);
+        var req = new HttpRequestMessage(HttpMethod.Post, "/api/bookmarks") { Content = JsonContent.Create(new { tipo = "pelicula", tmdbId, status = "Pendiente" }) };
+        req.Headers.Add("RequestVerificationToken", token);
+        Assert.Equal(HttpStatusCode.OK, (await a.SendAsync(req)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Pelicula_estrenada_guarda_fecha_y_se_puede_resenar()
+    {
+        using var app = new LabFactory();
+        var a = app.Client();
+        await a.RegisterAsync("ana");
+        Assert.Contains("Escribir review", await a.GetStringAsync("/titulo/pelicula/603"));
+        Assert.Equal(new DateOnly(1999, 3, 30), app.WithDb(db => db.Titles.Single().ReleaseDate));
+    }
+
     [Fact]
     public async Task Anonimo_no_puede_resenar()
     {

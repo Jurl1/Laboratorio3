@@ -9,7 +9,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       # Se arma con las mismas variables de Postgres para que la contraseña no se repita en el .env.
-      ConnectionStrings__Default: Host=db;Database=${POSTGRES_DB:-lab3};Username=${POSTGRES_USER:-lab3};Password=${POSTGRES_PASSWORD:-}
+      ConnectionStrings__Default: Host=db;Database=${POSTGRES_DB:-lab3};Username=${POSTGRES_USER:-lab3};Password=${POSTGRES_PASSWORD:-};Gss Encryption Mode=Disable
     depends_on:
       db:
         condition: service_healthy

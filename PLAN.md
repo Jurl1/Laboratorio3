@@ -314,7 +314,7 @@ Laboratorio3/
 POSTGRES_DB=lab3
 POSTGRES_USER=lab3
 POSTGRES_PASSWORD=<generar>
-ConnectionStrings__Default=Host=db;Database=lab3;Username=lab3;Password=<igual>
+(ConnectionStrings__Default no va en el .env: docker-compose.yml la arma con las POSTGRES_*)
 Tmdb__ReadAccessToken=<token>
 YouTube__ApiKey=<key>
 Smtp__Host= / Smtp__User= / Smtp__Password=   (opcional)

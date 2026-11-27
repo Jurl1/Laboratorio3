@@ -82,8 +82,11 @@ Laboratorio3/
 Desarrollo:
 
 ```powershell
-# Postgres local
-docker compose -f deploy/docker-compose.yml up -d db
+# Postgres local (publica 5432 solo en 127.0.0.1, password de dev "lab3_dev")
+docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up -d db
+
+# Herramienta EF (local al repo, dotnet-tools.json)
+dotnet tool restore
 
 # Correr la app
 dotnet run --project src/Lab3.Web
@@ -108,7 +111,7 @@ docker compose -f deploy/docker-compose.yml logs -f app
 |---|---|---|
 | — | Plan de implementación | ✅ Hecho (`PLAN.md`) |
 | 0 | Infra: LXC, Docker, tunnel, Hello World online | 🔧 En curso: código listo (Hello World, Dockerfile, compose app + cloudflared). LXC 104 con Docker andando. Falta tunnel y verificar la URL pública |
-| 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | Pendiente |
+| 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | 🔧 En curso: código listo (MVC + Bootstrap, EF Core/Npgsql, `db` en compose, migración `Inicial`, migra al arrancar). Compila; falta probar contra Postgres (PC sin Docker Desktop → probar en el LXC) |
 | 2 | Usuarios: registro, login, logout, perfil | Pendiente |
 | 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | Pendiente |
 | 4 | Reviews: CRUD, promedio, likes, spoilers | Pendiente |

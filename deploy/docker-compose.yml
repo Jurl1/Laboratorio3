@@ -8,9 +8,33 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      # Se arma con las mismas variables de Postgres para que la contraseña no se repita en el .env.
+      ConnectionStrings__Default: Host=db;Database=${POSTGRES_DB:-lab3};Username=${POSTGRES_USER:-lab3};Password=${POSTGRES_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - lab3_net
     # Sin "ports:". Solo cloudflared llega a la app por la red interna.
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lab3}
+      POSTGRES_USER: ${POSTGRES_USER:-lab3}
+      # Sin contraseña Postgres no arranca: es a propósito.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lab3_net
+    # Sin "ports:" en producción (CLAUDE.md). En desarrollo: docker-compose.dev.yml.
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -21,7 +45,8 @@ services:
     networks:
       - lab3_net
 
-  # Fase 1: se agrega el servicio "db" (postgres:17-alpine).
+volumes:
+  pgdata:
 
 networks:
   lab3_net:

@@ -1,0 +1,10 @@
+# Solo para desarrollo en la PC. Nunca en el LXC.
+# Uso: docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up -d db
+# La contraseña es local y solo escucha en 127.0.0.1 (coincide con appsettings.Development.json).
+
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: lab3_dev
+    ports:
+      - "127.0.0.1:5432:5432"

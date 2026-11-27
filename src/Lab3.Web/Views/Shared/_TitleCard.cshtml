@@ -1,0 +1,26 @@
+@model TitleCard
+@{
+    var poster = Display.Image(Model.PosterPath, "w342");
+}
+<a class="title-card text-decoration-none" href="@Display.TitleUrl(Model.Type, Model.TmdbId)">
+    <div class="poster rounded">
+        @if (poster is not null)
+        {
+            <img src="@poster" alt="Póster de @Model.Name" loading="lazy" />
+        }
+        else
+        {
+            <div class="poster-placeholder">@Model.Name</div>
+        }
+        @if (Model.VoteAverage > 0)
+        {
+            <span class="badge text-bg-dark score-badge">★ @Model.VoteAverage.ToString("0.0")</span>
+        }
+    </div>
+    <div class="mt-2 small">
+        <div class="text-body fw-semibold text-truncate" title="@Model.Name">@Model.Name</div>
+        <div class="text-body-secondary">
+            @Display.TypeLabel(Model.Type, Model.IsAnime)@(Model.Year is { } y ? $" · {y}" : "")
+        </div>
+    </div>
+</a>

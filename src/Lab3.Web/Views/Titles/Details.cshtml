@@ -1,0 +1,236 @@
+@model TitleViewModel
+@{
+    var d = Model.Detail;
+    ViewData["Title"] = d.Year is { } year ? $"{d.Name} ({year})" : d.Name;
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var url = Display.TitleUrl(d.Type, d.TmdbId);
+    var poster = Display.Image(d.PosterPath, "w500");
+    var backdrop = Display.Image(d.BackdropPath, "w1280");
+    var loginUrl = "/cuenta/login?returnUrl=" + Uri.EscapeDataString(url);
+    var statuses = Enum.GetValues<BookmarkStatus>();
+}
+
+<section class="title-hero rounded-4 mb-4 @(backdrop is null ? "no-backdrop" : "")">
+    @if (backdrop is not null)
+    {
+        <img class="title-hero-bg" src="@backdrop" alt="" aria-hidden="true" />
+    }
+    <div class="title-hero-content p-3 p-md-4">
+        <div class="row g-4">
+            <div class="col-5 col-sm-4 col-md-3">
+                @if (poster is not null)
+                {
+                    <img src="@poster" alt="Póster de @d.Name" class="img-fluid rounded shadow" />
+                }
+                else
+                {
+                    <div class="poster rounded"><div class="poster-placeholder">@d.Name</div></div>
+                }
+            </div>
+            <div class="col-12 col-sm-8 col-md-9">
+                <div class="mb-2">
+                    <span class="badge text-bg-warning">@Display.TypeLabel(d.Type, d.IsAnime)</span>
+                    @foreach (var g in d.Genres)
+                    {
+                        <span class="badge text-bg-secondary">@g</span>
+                    }
+                </div>
+                <h1 class="display-6 fw-bold mb-1">@d.Name @if (d.Year is { } y) {<span class="text-body-secondary fw-normal">(@y)</span>}</h1>
+                @if (d.OriginalName is { } original && original != d.Name)
+                {
+                    <p class="text-body-secondary mb-1">Título original: @original</p>
+                }
+                <p class="text-body-secondary small mb-3">
+                    @if (d.RuntimeMinutes is > 0)
+                    {
+                        <span>@(d.Type == TmdbType.Tv ? "Episodios de " : "")@(d.RuntimeMinutes / 60 > 0 ? $"{d.RuntimeMinutes / 60} h " : "")@(d.RuntimeMinutes % 60) min</span>
+                    }
+                    @if (d.Seasons is > 0)
+                    {
+                        <span> · @d.Seasons @(d.Seasons == 1 ? "temporada" : "temporadas")</span>
+                    }
+                </p>
+                @if (d.Tagline is not null)
+                {
+                    <p class="fst-italic">@d.Tagline</p>
+                }
+
+                <div class="d-flex flex-wrap gap-3 mb-3 scores">
+                    <div class="score-box">
+                        <div class="score-value">@(Model.CommunityAverage?.ToString("0.0") ?? "—")</div>
+                        <div class="small text-body-secondary">Comunidad Lab3 · @Model.CommunityCount @(Model.CommunityCount == 1 ? "review" : "reviews")</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-value">@(d.VoteAverage > 0 ? d.VoteAverage.ToString("0.0") : "—")</div>
+                        <div class="small text-body-secondary">TMDB · @d.VoteCount.ToString("N0") votos</div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    @if (Model.MyReview is null)
+                    {
+                        <a class="btn btn-warning" href="@(signedIn ? url + "/review" : loginUrl)">✎ Escribir review</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-warning" href="@url/review">✎ Editar mi review</a>
+                    }
+
+                    @if (signedIn)
+                    {
+                        <label class="visually-hidden" for="bookmark-select">Guardar en mis listas</label>
+                        <select id="bookmark-select" class="form-select w-auto" data-bookmark data-tipo="@d.Type.Slug()" data-tmdb-id="@d.TmdbId">
+                            <option value="" selected="@(Model.MyBookmark is null)">＋ Guardar en mis listas</option>
+                            @foreach (var s in statuses)
+                            {
+                                <option value="@s" selected="@(Model.MyBookmark == s)">@Display.StatusLabel(s)</option>
+                            }
+                        </select>
+                        <span class="small text-body-secondary" data-bookmark-feedback aria-live="polite"></span>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-secondary" href="@loginUrl">＋ Guardar en mis listas</a>
+                    }
+
+                    @if (d.ImdbId is not null)
+                    {
+                        <a class="btn btn-outline-light" href="https://www.imdb.com/title/@d.ImdbId/" target="_blank" rel="noopener noreferrer">Ver en IMDb ↗</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info" type="button" role="tab" aria-controls="tab-info" aria-selected="true">Información</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                    Reviews <span class="badge text-bg-secondary">@Model.CommunityCount</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-videos" type="button" role="tab" aria-controls="tab-videos" aria-selected="false"
+                        data-videos-url="@url/videos">Videos</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-info" role="tabpanel">
+                <h2 class="h5">Sinopsis</h2>
+                <p>@(d.Overview ?? "No hay sinopsis en español para este título.")</p>
+
+                @if (d.TrailerKey is not null)
+                {
+                    <h2 class="h5 mt-4">Trailer</h2>
+                    <div class="ratio ratio-16x9 mb-4">
+                        <iframe src="https://www.youtube-nocookie.com/embed/@d.TrailerKey" title="Trailer de @d.Name"
+                                loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                }
+
+                @if (d.Cast.Count > 0)
+                {
+                    <h2 class="h5 mt-4">Reparto</h2>
+                    <div class="cast-row mb-4">
+                        @foreach (var c in d.Cast)
+                        {
+                            <div class="cast-item text-center small">
+                                @if (Display.Image(c.ProfilePath, "w185") is { } photo)
+                                {
+                                    <img src="@photo" alt="@c.Name" class="rounded cast-photo" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="rounded cast-photo poster-placeholder">@Display.Initials(c.Name)</div>
+                                }
+                                <div class="fw-semibold mt-1">@c.Name</div>
+                                @if (c.Character is not null)
+                                {
+                                    <div class="text-body-secondary">@c.Character</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                @if (Model.Reviews.Count == 0)
+                {
+                    <p class="text-body-secondary">Todavía no hay reviews de este título.
+                        <a href="@(signedIn ? url + "/review" : loginUrl)">Escribí la primera</a>.
+                    </p>
+                }
+                else
+                {
+                    @foreach (var r in Model.Reviews)
+                    {
+                        <partial name="_ReviewCard" model="r" />
+                    }
+                }
+            </div>
+
+            <div class="tab-pane fade" id="tab-videos" role="tabpanel" data-videos-target>
+                <p class="text-body-secondary">Cargando videos…</p>
+            </div>
+        </div>
+    </div>
+
+    <aside class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h5">Dónde ver en Argentina</h2>
+                @if (d.Providers is null || d.Providers.IsEmpty)
+                {
+                    <p class="text-body-secondary small mb-2">No hay datos de plataformas para Argentina.</p>
+                }
+                else
+                {
+                    @foreach (var (label, list) in new[] { ("Suscripción", d.Providers.Flatrate), ("Alquiler", d.Providers.Rent), ("Compra", d.Providers.Buy) })
+                    {
+                        if (list.Count == 0) continue;
+                        <div class="mb-2">
+                            <div class="small text-body-secondary mb-1">@label</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var p in list)
+                                {
+                                    @if (Display.Image(p.LogoPath, "w92") is { } logo)
+                                    {
+                                        <img src="@logo" alt="@p.Name" title="@p.Name" class="rounded provider-logo" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">@p.Name</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (d.Providers.Link is not null)
+                    {
+                        <a class="small" href="@d.Providers.Link" target="_blank" rel="noopener noreferrer">Ver todas las opciones ↗</a>
+                    }
+                }
+                <p class="small text-body-secondary mt-2 mb-0">Datos de plataformas provistos por <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a>.</p>
+            </div>
+        </div>
+
+        @if (d.Similar.Count > 0)
+        {
+            <h2 class="h5">Títulos similares</h2>
+            <div class="similar-grid">
+                @foreach (var s in d.Similar.Take(6))
+                {
+                    <partial name="_TitleCard" model="s" />
+                }
+            </div>
+        }
+    </aside>
+</div>

@@ -1,0 +1,36 @@
+@model MyListsViewModel
+@{
+    ViewData["Title"] = "Mis listas";
+    var total = Model.Counts.Values.Sum();
+}
+
+<h1 class="h3 mb-3">Mis listas</h1>
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-1">
+    <li class="nav-item">
+        <a class="nav-link @(Model.Status == "todos" ? "active" : "")" href="/mis-listas">
+            Todos <span class="badge text-bg-secondary">@total</span>
+        </a>
+    </li>
+    @foreach (var s in Enum.GetValues<BookmarkStatus>())
+    {
+        var key = s.ToString().ToLowerInvariant();
+        <li class="nav-item">
+            <a class="nav-link @(Model.Status == key ? "active" : "")" href="/mis-listas?estado=@key">
+                @Display.StatusLabel(s) <span class="badge text-bg-secondary">@Model.Counts.GetValueOrDefault(s)</span>
+            </a>
+        </li>
+    }
+</ul>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-body-secondary">
+        No hay títulos en esta lista. Abrí una película, serie o anime y usá “Guardar en mis listas”.
+    </p>
+    <a class="btn btn-outline-warning" href="/">Explorar títulos</a>
+}
+else
+{
+    <partial name="~/Views/Users/_BookmarkGrid.cshtml" model="Model.Items" />
+}

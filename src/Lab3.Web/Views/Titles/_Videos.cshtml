@@ -1,0 +1,38 @@
+@model VideosViewModel
+
+@if (Model.Error is not null)
+{
+    <p class="text-body-secondary">@Model.Error</p>
+}
+else if (Model.Videos.Count == 0)
+{
+    <p class="text-body-secondary">No encontramos reviews en YouTube para este título.</p>
+}
+else
+{
+    <p class="small text-body-secondary">Reviews y análisis en YouTube. Hacé click en un video para verlo acá.</p>
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        @foreach (var v in Model.Videos)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="ratio ratio-16x9" data-yt-container>
+                        <button type="button" class="yt-thumb p-0 border-0" data-yt-embed="@v.Id" aria-label="Reproducir: @v.Title">
+                            <img src="https://i.ytimg.com/vi/@v.Id/hqdefault.jpg" alt="" loading="lazy" class="w-100 h-100" />
+                            <span class="yt-play" aria-hidden="true">▶</span>
+                        </button>
+                    </div>
+                    <div class="card-body small">
+                        <div class="fw-semibold">@v.Title</div>
+                        <div class="text-body-secondary">
+                            @v.Channel
+                            @if (v.Views is { } views) { <span> · @views.ToString("N0") vistas</span> }
+                            @if (v.Duration is { } dur) { <span> · @(dur.TotalHours >= 1 ? dur.ToString(@"h\:mm\:ss") : dur.ToString(@"m\:ss"))</span> }
+                        </div>
+                        <a class="small" href="https://www.youtube.com/watch?v=@v.Id" target="_blank" rel="noopener noreferrer">Ver en YouTube ↗</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

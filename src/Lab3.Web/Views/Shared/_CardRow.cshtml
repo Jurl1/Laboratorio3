@@ -1,0 +1,8 @@
+@model IEnumerable<TitleCard>
+@* Fila con scroll horizontal (en mobile se desliza con el dedo). *@
+<div class="card-row" tabindex="0">
+    @foreach (var card in Model)
+    {
+        <partial name="_TitleCard" model="card" />
+    }
+</div>

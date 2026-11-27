@@ -88,8 +88,14 @@ docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up 
 # Herramienta EF (local al repo, dotnet-tools.json)
 dotnet tool restore
 
+# Token de TMDB local (user-secrets, fuera del repo)
+dotnet user-secrets --project src/Lab3.Web set "Tmdb:ReadAccessToken" "<token>"
+
 # Correr la app
 dotnet run --project src/Lab3.Web
+
+# Tests (SQLite en memoria + TMDB/YouTube falsos; no necesitan Postgres ni keys)
+dotnet test Laboratorio3.slnx
 
 # Migraciones
 dotnet ef migrations add <Nombre> --project src/Lab3.Web
@@ -112,16 +118,16 @@ docker compose -f deploy/docker-compose.yml logs -f app
 | — | Plan de implementación | ✅ Hecho (`PLAN.md`) |
 | 0 | Infra: LXC, Docker, tunnel, Hello World online | ✅ Hecho (LXC 104, tunnel `lab3` → `http://app:8080`) |
 | 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | ✅ Hecho (online en `https://lab3.juriserver.website`, migración `Inicial` aplicada) |
-| 2 | Usuarios: registro, login, logout, perfil | ⏳ Siguiente |
-| 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | Pendiente |
-| 4 | Reviews: CRUD, promedio, likes, spoilers | Pendiente |
-| 5 | Bookmarks: estados, "Mis listas", perfil público | Pendiente |
-| 6 | YouTube extra: pestaña "Videos" | Pendiente |
-| 7 | Pulido: responsive, "Acerca de", errores amigables | Pendiente |
-| 8 | Hardening y entrega: checklist de seguridad, backup, README, datos demo | Pendiente |
+| 2 | Usuarios: registro, login, logout, perfil | 🧪 Código + tests OK. Falta probar en el server |
+| 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | 🧪 Código + tests OK (TMDB falso). Falta `Tmdb__ReadAccessToken` y probar con la API real |
+| 4 | Reviews: CRUD, promedio, likes, spoilers | 🧪 Código + tests OK. Falta probar en el server |
+| 5 | Bookmarks: estados, "Mis listas", perfil público | 🧪 Código + tests OK. Falta probar en el server |
+| 6 | YouTube extra: pestaña "Videos" | 🧪 Código + tests OK (YouTube falso). Falta `YouTube__ApiKey` |
+| 7 | Pulido: responsive, "Acerca de", errores amigables | 🧪 Hecho. Revisado en navegador con datos falsos |
+| 8 | Hardening y entrega: checklist de seguridad, backup, README, datos demo | 🧪 CSP/headers, rate limit, keys en volumen, servicio `backup`, README, `Demo__Seed`. Falta probar backup/restore en el server |
 
 ## Pendientes a confirmar
 
 - Si la cátedra exige un stack o una base de datos específicos.
 - Fecha de entrega.
-- Si el registro necesita verificación por mail (requiere SMTP).
+- Si el registro necesita verificación por mail (requiere SMTP). Por ahora: sin verificación; "Olvidé mi contraseña" solo funciona si hay `Smtp__*`.

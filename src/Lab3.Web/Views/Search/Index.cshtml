@@ -1,0 +1,71 @@
+@model SearchViewModel
+@{
+    ViewData["Title"] = Model.Query.Length > 0 ? $"Buscar: {Model.Query}" : "Buscar";
+    var tabs = new (string Key, string Label, int Count)[]
+    {
+        ("peliculas", "Películas", Model.Movies.Count),
+        ("series", "Series", Model.Series.Count),
+        ("anime", "Anime", Model.Anime.Count),
+    };
+    string Url(string tab, int page) => $"/buscar?q={Uri.EscapeDataString(Model.Query)}&tab={tab}" + (page > 1 ? $"&page={page}" : "");
+}
+
+<h1 class="h3 mb-3">
+    @if (Model.Query.Length > 0)
+    {
+        <text>Resultados para “@Model.Query”</text>
+    }
+    else
+    {
+        <text>Buscar</text>
+    }
+</h1>
+
+<form class="d-flex gap-2 mb-4 search-page-form" role="search" method="get" action="/buscar">
+    <input class="form-control" type="search" name="q" value="@Model.Query" maxlength="100" required
+           placeholder="Título de película, serie o anime" aria-label="Buscar" />
+    <button class="btn btn-warning" type="submit">Buscar</button>
+</form>
+
+@if (Model.CatalogError is not null)
+{
+    <partial name="_CatalogError" model="Model.CatalogError" />
+}
+else if (Model.Query.Length > 0)
+{
+    <ul class="nav nav-tabs mb-4">
+        @foreach (var (key, label, count) in tabs)
+        {
+            <li class="nav-item">
+                <a class="nav-link @(Model.Tab == key ? "active" : "")" href="@Url(key, Model.Page)"
+                   aria-current="@(Model.Tab == key ? "page" : null)">
+                    @label <span class="badge text-bg-secondary">@count</span>
+                </a>
+            </li>
+        }
+    </ul>
+
+    @if (Model.Current.Count == 0)
+    {
+        <p class="text-body-secondary">No hay resultados en esta pestaña@(Model.TotalPages > 1 ? " en esta página" : "").</p>
+    }
+    else
+    {
+        <partial name="_CardGrid" model="Model.Current" />
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4" aria-label="Páginas de resultados">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url(Model.Tab, Model.Page - 1)">Anterior</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Página @Model.Page de @Model.TotalPages</span></li>
+                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url(Model.Tab, Model.Page + 1)">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
+}

@@ -10,6 +10,19 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       # Se arma con las mismas variables de Postgres para que la contraseña no se repita en el .env.
       ConnectionStrings__Default: Host=db;Database=${POSTGRES_DB:-lab3};Username=${POSTGRES_USER:-lab3};Password=${POSTGRES_PASSWORD:-};Gss Encryption Mode=Disable
+      # APIs externas: las keys solo viven acá, nunca llegan al navegador.
+      Tmdb__ReadAccessToken: ${Tmdb__ReadAccessToken:-}
+      YouTube__ApiKey: ${YouTube__ApiKey:-}
+      Smtp__Host: ${Smtp__Host:-}
+      Smtp__Port: ${Smtp__Port:-587}
+      Smtp__User: ${Smtp__User:-}
+      Smtp__Password: ${Smtp__Password:-}
+      Smtp__From: ${Smtp__From:-}
+      # Datos de demo para la entrega (Fase 8). Idempotente: solo carga si no existen.
+      Demo__Seed: ${Demo__Seed:-false}
+      Demo__Password: ${Demo__Password:-}
+    volumes:
+      - dataprotection-keys:/keys
     depends_on:
       db:
         condition: service_healthy
@@ -36,6 +49,28 @@ services:
       - lab3_net
     # Sin "ports:" en producción (CLAUDE.md). En desarrollo: docker-compose.dev.yml.
 
+  # pg_dump diario a un volumen (PLAN.md §4.3). Guarda 7 diarios, 4 semanales y 2 mensuales.
+  backup:
+    image: prodrigestivill/postgres-backup-local:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB:-lab3}
+      POSTGRES_USER: ${POSTGRES_USER:-lab3}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 2
+      TZ: America/Argentina/Buenos_Aires
+    volumes:
+      - backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - lab3_net
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
@@ -47,6 +82,8 @@ services:
 
 volumes:
   pgdata:
+  dataprotection-keys:
+  backups:
 
 networks:
   lab3_net:

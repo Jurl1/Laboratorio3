@@ -1,14 +1,23 @@
-﻿@model ErrorViewModel
-@{
-    ViewData["Title"] = "Error";
+﻿@{
+    var code = ViewData["Code"] as int? ?? 500;
+    var (title, message) = code switch
+    {
+        404 => ("No encontramos esa página", "Puede que el enlace esté mal o que el título ya no exista."),
+        429 => ("Demasiados intentos", "Esperá un minuto y probá de nuevo."),
+        400 => ("Pedido inválido", "Algo en el pedido no estaba bien. Volvé atrás y probá de nuevo."),
+        403 => ("Sin permiso", "No tenés acceso a esta página."),
+        _ => ("Ocurrió un error", "Algo salió mal de nuestro lado. Probá de nuevo en un rato."),
+    };
+    ViewData["Title"] = title;
 }
 
-<h1 class="text-danger">Ocurrió un error.</h1>
-<p>No pudimos procesar el pedido. Probá de nuevo en un rato.</p>
-
-@if (Model.ShowRequestId)
-{
-    <p class="text-muted small">
-        Código del pedido: <code>@Model.RequestId</code>
-    </p>
-}
+<div class="text-center py-5">
+    <p class="display-1 fw-bold text-warning mb-0">@code</p>
+    <h1 class="h3">@title</h1>
+    <p class="text-body-secondary">@message</p>
+    <a class="btn btn-outline-warning mt-2" href="/">Volver al inicio</a>
+    @if (code >= 500 && ViewData["RequestId"] is string requestId)
+    {
+        <p class="text-body-secondary small mt-4">Código del pedido: <code>@requestId</code></p>
+    }
+</div>

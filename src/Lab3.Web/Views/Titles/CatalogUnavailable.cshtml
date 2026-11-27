@@ -1,0 +1,8 @@
+@{
+    ViewData["Title"] = "Catálogo no disponible";
+}
+
+<div class="py-4">
+    <partial name="_CatalogError" model='ViewData["CatalogError"] as string ?? ""' />
+    <a class="btn btn-outline-warning" href="/">Volver al inicio</a>
+</div>

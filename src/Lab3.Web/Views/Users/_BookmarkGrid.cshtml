@@ -1,0 +1,10 @@
+@model IEnumerable<BookmarkItem>
+<div class="card-grid">
+    @foreach (var b in Model)
+    {
+        <div>
+            <partial name="_TitleCard" model="new TitleCard(b.Type, b.TmdbId, b.Name, b.Year, b.PosterPath, 0, b.IsAnime)" />
+            <span class="badge status-@b.Status.ToString().ToLowerInvariant() mt-1">@Display.StatusLabel(b.Status)</span>
+        </div>
+    }
+</div>

@@ -1,0 +1,72 @@
+@model ReviewItem
+@{
+    // ViewData["ShowTitle"]: en el home y el perfil se muestra a qué título corresponde.
+    var showTitle = ViewData["ShowTitle"] as bool? ?? false;
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var edited = Model.UpdatedAt > Model.CreatedAt.AddMinutes(1);
+}
+<article class="card review-card mb-3" id="review-@Model.Id">
+    <div class="card-body">
+        <div class="d-flex gap-3">
+            @if (showTitle)
+            {
+                <a href="@Display.TitleUrl(Model.TitleType, Model.TitleTmdbId)" class="flex-shrink-0">
+                    @if (Display.Image(Model.TitlePoster, "w92") is { } p)
+                    {
+                        <img src="@p" alt="Póster de @Model.TitleName" class="rounded mini-poster" loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="rounded mini-poster poster-placeholder small">@Model.TitleName</div>
+                    }
+                </a>
+            }
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <span class="badge text-bg-warning fs-6">@Model.Rating/10</span>
+                    @if (showTitle)
+                    {
+                        <a class="fw-semibold" href="@Display.TitleUrl(Model.TitleType, Model.TitleTmdbId)">@Model.TitleName</a>
+                        <span class="text-body-secondary">·</span>
+                    }
+                    <a class="link-body-emphasis" href="/usuario/@Model.UserName">@Model.DisplayName</a>
+                    <span class="text-body-secondary small">@@@Model.UserName · @Display.Date(Model.CreatedAt)@(edited ? " · editada" : "")</span>
+                </div>
+
+                @if (Model.HasSpoilers)
+                {
+                    <div class="spoiler" data-spoiler>
+                        <button type="button" class="btn btn-sm btn-outline-danger mb-2" data-spoiler-toggle>
+                            ⚠ Contiene spoilers · Mostrar
+                        </button>
+                        <p class="review-body mb-0 d-none" data-spoiler-body>@Model.Body</p>
+                    </div>
+                }
+                else
+                {
+                    <p class="review-body mb-0">@Model.Body</p>
+                }
+
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    @if (Model.IsMine)
+                    {
+                        <span class="text-body-secondary small">♥ <span>@Model.LikeCount</span></span>
+                        <a class="btn btn-sm btn-link px-1" href="@Display.TitleUrl(Model.TitleType, Model.TitleTmdbId)/review">Editar</a>
+                    }
+                    else if (signedIn)
+                    {
+                        <button type="button" class="btn btn-sm @(Model.LikedByMe ? "btn-danger" : "btn-outline-danger")"
+                                data-like-review="@Model.Id" aria-pressed="@(Model.LikedByMe ? "true" : "false")">
+                            ♥ <span data-like-count>@Model.LikeCount</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-outline-secondary" href="/cuenta/login?returnUrl=@Uri.EscapeDataString(Display.TitleUrl(Model.TitleType, Model.TitleTmdbId))"
+                           title="Entrá para dar like">♥ @Model.LikeCount</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</article>

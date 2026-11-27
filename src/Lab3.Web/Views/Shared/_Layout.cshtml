@@ -1,41 +1,104 @@
-﻿<!DOCTYPE html>
-<html lang="es">
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var userName = signedIn ? UserManager.GetUserName(User) : null;
+    var flash = TempData["Flash"] as string;
+    var currentQuery = Context.Request.Path.StartsWithSegments("/buscar") ? Context.Request.Query["q"].ToString() : "";
+}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Lab3</title>
-    <script type="importmap"></script>
+    <meta name="description" content="Reviews de películas, series y animes." />
+    @* Token para los POST que hace el JS con fetch (likes y bookmarks). *@
+    <meta name="request-verification-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <title>@(ViewData["Title"] is string t ? $"{t} · Lab3" : "Lab3")</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Lab3.Web.styles.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
+    <a class="visually-hidden-focusable" href="#contenido">Saltar al contenido</a>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom mb-4">
             <div class="container">
-                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">Lab3</a>
+                <a class="navbar-brand fw-bold brand" href="/">Lab<span class="text-warning">3</span></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
                         aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                        @if (signedIn)
+                        {
+                            <li class="nav-item"><a class="nav-link" href="/mis-listas">Mis listas</a></li>
+                        }
+                        <li class="nav-item"><a class="nav-link" href="/acerca">Acerca de</a></li>
+                    </ul>
+
+                    <form class="d-flex my-2 my-lg-0 me-lg-3 search-form" role="search" method="get" action="/buscar">
+                        <input class="form-control me-2" type="search" name="q" value="@currentQuery" maxlength="100"
+                               placeholder="Buscar películas, series, anime…" aria-label="Buscar" required />
+                        <button class="btn btn-outline-warning" type="submit">Buscar</button>
+                    </form>
+
+                    <ul class="navbar-nav">
+                        @if (signedIn)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @userName
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/usuario/@userName">Mi perfil público</a></li>
+                                    <li><a class="dropdown-item" href="/mis-listas">Mis listas</a></li>
+                                    <li><a class="dropdown-item" href="/cuenta/perfil">Editar perfil</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form method="post" action="/cuenta/logout">
+                                            <button type="submit" class="dropdown-item">Salir</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" href="/cuenta/login?returnUrl=@Uri.EscapeDataString(Context.Request.Path + Context.Request.QueryString)">Entrar</a></li>
+                            <li class="nav-item"><a class="btn btn-warning btn-sm ms-lg-2 mt-1" href="/cuenta/registro">Crear cuenta</a></li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
-    <main role="main" class="container flex-grow-1 pb-4">
+    <main id="contenido" role="main" class="container flex-grow-1 pb-5">
+        @if (!string.IsNullOrEmpty(flash))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="status">
+                @flash
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        }
         @RenderBody()
     </main>
 
-    <footer class="border-top py-3 text-muted small">
-        <div class="container">
-            &copy; @DateTime.Now.Year · Santiago Juri Nam · Laboratorio 3 (UBP)
+    <footer class="border-top py-4 text-body-secondary small">
+        <div class="container d-flex flex-column flex-md-row gap-3 justify-content-between align-items-md-center">
+            <div>
+                &copy; @DateTime.Now.Year · Santiago Juri Nam · Laboratorio 3 (UBP)
+                · <a href="/acerca" class="link-secondary">Acerca de</a>
+            </div>
+            <div class="d-flex align-items-center gap-2 tmdb-attribution">
+                <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+                         alt="The Movie Database (TMDB)" class="tmdb-logo" />
+                </a>
+                <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+            </div>
         </div>
     </footer>
 

@@ -1,0 +1,65 @@
+@model ReviewFormViewModel
+@{
+    ViewData["Title"] = (Model.IsEdit ? "Editar review: " : "Review: ") + Model.TitleName;
+    var url = Display.TitleUrl(Model.Type, Model.TmdbId);
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex gap-3 align-items-center mb-4">
+            @if (Display.Image(Model.TitlePoster, "w154") is { } p)
+            {
+                <img src="@p" alt="Póster de @Model.TitleName" class="rounded mini-poster-lg" />
+            }
+            <div>
+                <p class="text-body-secondary small mb-1">@(Model.IsEdit ? "Editar tu review de" : "Tu review de")</p>
+                <h1 class="h3 mb-0"><a class="link-body-emphasis" href="@url">@Model.TitleName</a> @if (Model.TitleYear is { } y) {<span class="text-body-secondary fw-normal">(@y)</span>}</h1>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <fieldset class="mb-3">
+                <legend class="form-label fs-6">Puntaje</legend>
+                <div class="rating-picker" role="radiogroup" aria-label="Puntaje del 1 al 10">
+                    @for (var i = 1; i <= 10; i++)
+                    {
+                        <input type="radio" class="btn-check" name="Rating" id="rating-@i" value="@i" checked="@(Model.Rating == i)" required />
+                        <label class="btn btn-outline-warning" for="rating-@i">@i</label>
+                    }
+                </div>
+                <span asp-validation-for="Rating" class="text-danger small"></span>
+            </fieldset>
+
+            <div class="mb-3">
+                <label asp-for="Body" class="form-label"></label>
+                <textarea asp-for="Body" class="form-control" rows="8" maxlength="5000"
+                          placeholder="¿Qué te pareció? Mínimo 10 caracteres."></textarea>
+                <div class="form-text">Texto plano. No se acepta HTML.</div>
+                <span asp-validation-for="Body" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4 form-check">
+                <input asp-for="HasSpoilers" class="form-check-input" />
+                <label asp-for="HasSpoilers" class="form-check-label"></label>
+                <div class="form-text">Si la marcás, el texto queda oculto hasta que el lector haga click.</div>
+            </div>
+
+            <button type="submit" class="btn btn-warning">@(Model.IsEdit ? "Guardar cambios" : "Publicar review")</button>
+            <a class="btn btn-link" href="@url">Cancelar</a>
+        </form>
+
+        @if (Model.IsEdit)
+        {
+            <hr class="my-4" />
+            <form method="post" action="@url/review/borrar" data-confirm="¿Borrar tu review? No se puede deshacer.">
+                <button type="submit" class="btn btn-outline-danger btn-sm">Borrar mi review</button>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

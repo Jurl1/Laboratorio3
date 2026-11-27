@@ -1,9 +1,53 @@
-﻿@{
+﻿@model HomeViewModel
+@{
     ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center py-5">
-    <h1 class="display-5">Lab3</h1>
-    <p class="lead">Reviews de películas, series y animes.</p>
-    <p class="text-muted">Esqueleto del sitio (Fase 1). El catálogo llega en la Fase 3.</p>
-</div>
+<section class="hero rounded-4 p-4 p-md-5 mb-5">
+    <h1 class="display-6 fw-bold">Reviews de películas, series y animes</h1>
+    <p class="lead text-body-secondary mb-4">Buscá un título, puntualo del 1 al 10 y armá tus listas.</p>
+    <form class="d-flex gap-2 hero-search" role="search" method="get" action="/buscar">
+        <input class="form-control form-control-lg" type="search" name="q" maxlength="100" required
+               placeholder="Ej: Matrix, Breaking Bad, Frieren…" aria-label="Buscar" />
+        <button class="btn btn-warning btn-lg" type="submit">Buscar</button>
+    </form>
+</section>
+
+@if (Model.CatalogError is not null)
+{
+    <partial name="_CatalogError" model="Model.CatalogError" />
+}
+else if (Model.Lists is { } lists)
+{
+    <section class="mb-5">
+        <h2 class="h4 section-title">Películas en tendencia</h2>
+        <partial name="_CardRow" model="lists.TrendingMovies" />
+    </section>
+    <section class="mb-5">
+        <h2 class="h4 section-title">Series en tendencia</h2>
+        <partial name="_CardRow" model="lists.TrendingTv" />
+    </section>
+    <section class="mb-5">
+        <h2 class="h4 section-title">Anime popular</h2>
+        <partial name="_CardRow" model="lists.Anime" />
+    </section>
+}
+
+<section class="mb-4">
+    <h2 class="h4 section-title">Últimas reviews de la comunidad</h2>
+    @if (Model.LatestReviews.Count == 0)
+    {
+        <p class="text-body-secondary">Todavía no hay reviews. ¡Abrí un título y escribí la primera!</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-lg-2 g-3">
+            @foreach (var r in Model.LatestReviews)
+            {
+                <div class="col">
+                    <partial name="_ReviewCard" model="r" view-data='new ViewDataDictionary(ViewData) { ["ShowTitle"] = true }' />
+                </div>
+            }
+        </div>
+    }
+</section>

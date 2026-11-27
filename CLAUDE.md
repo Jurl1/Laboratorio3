@@ -110,9 +110,9 @@ docker compose -f deploy/docker-compose.yml logs -f app
 | Fase | Descripción | Estado |
 |---|---|---|
 | — | Plan de implementación | ✅ Hecho (`PLAN.md`) |
-| 0 | Infra: LXC, Docker, tunnel, Hello World online | 🔧 En curso: código listo (Hello World, Dockerfile, compose app + cloudflared). LXC 104 con Docker andando. Falta tunnel y verificar la URL pública |
-| 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | 🔧 En curso: código listo (MVC + Bootstrap, EF Core/Npgsql, `db` en compose, migración `Inicial`, migra al arrancar). Compila; falta probar contra Postgres (PC sin Docker Desktop → probar en el LXC) |
-| 2 | Usuarios: registro, login, logout, perfil | Pendiente |
+| 0 | Infra: LXC, Docker, tunnel, Hello World online | ✅ Hecho (LXC 104, tunnel `lab3` → `http://app:8080`) |
+| 1 | Esqueleto: solución, Dockerfile, compose, Postgres, primera migración | ✅ Hecho (online en `https://lab3.juriserver.website`, migración `Inicial` aplicada) |
+| 2 | Usuarios: registro, login, logout, perfil | ⏳ Siguiente |
 | 3 | Catálogo: TMDB (incluye anime), cache, home, búsqueda, detalle con trailer y link a IMDb | Pendiente |
 | 4 | Reviews: CRUD, promedio, likes, spoilers | Pendiente |
 | 5 | Bookmarks: estados, "Mis listas", perfil público | Pendiente |

@@ -1,6 +1,8 @@
 @model TitleCard
+@inject Lab3.Web.Services.MyRatings MyRatings
 @{
     var poster = Display.Image(Model.PosterPath, "w342");
+    var myRating = await MyRatings.GetAsync(Model.Type, Model.TmdbId);
 }
 <a class="title-card text-decoration-none" href="@Display.TitleUrl(Model.Type, Model.TmdbId)">
     <div class="poster rounded">
@@ -14,7 +16,14 @@
         }
         @if (Model.VoteAverage > 0)
         {
-            <span class="badge text-bg-dark score-badge">★ @Model.VoteAverage.ToString("0.0")</span>
+            <span class="badge text-bg-dark score-badge" title="Puntaje en TMDB">★ @Model.VoteAverage.ToString("0.0")</span>
+        }
+        @if (myRating is { } r)
+        {
+            @* Tu puntaje, abajo a la derecha. *@
+            <span class="badge my-rating-badge" title="Tu puntaje: @r/10" data-my-rating="@r">
+                <span class="visually-hidden">Tu puntaje: </span>@r
+            </span>
         }
     </div>
     <div class="mt-2 small">

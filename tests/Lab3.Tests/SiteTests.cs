@@ -348,6 +348,26 @@ public class ReviewAndListTests
     }
 
     [Fact]
+    public async Task Mi_puntaje_aparece_en_los_posters_solo_para_mi()
+    {
+        using var app = new LabFactory();
+        var a = app.Client();
+        await a.RegisterAsync("ana");
+        await a.PostFormAsync("/titulo/pelicula/603/review", "/titulo/pelicula/603/review", Review(9, "Una obra maestra del cine."));
+
+        // Home y búsqueda: el póster de Matrix muestra el 9; los demás no.
+        var home = await a.GetStringAsync("/");
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(home, "data-my-rating=\"9\""));
+        Assert.Contains("data-my-rating=\"9\"", await a.GetStringAsync("/buscar?q=matrix&tab=peliculas"));
+
+        // Otro usuario y un anónimo no ven el puntaje de ana.
+        var b = app.Client();
+        await b.RegisterAsync("beto");
+        Assert.DoesNotContain("data-my-rating", await b.GetStringAsync("/"));
+        Assert.DoesNotContain("data-my-rating", await app.Client().GetStringAsync("/"));
+    }
+
+    [Fact]
     public async Task Anonimo_no_puede_resenar()
     {
         using var app = new LabFactory();

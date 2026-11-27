@@ -134,6 +134,8 @@ builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<ApiCache>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<DemoSeeder>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<MyRatings>();
 
 var app = builder.Build();
 

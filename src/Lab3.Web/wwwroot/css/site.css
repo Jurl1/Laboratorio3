@@ -77,6 +77,20 @@ html { font-size: 15px; }
 
 .score-badge { position: absolute; top: .4rem; left: .4rem; opacity: .9; }
 
+/* Tu puntaje en el póster: amarillo, abajo a la derecha. */
+.my-rating-badge {
+  position: absolute;
+  right: .4rem;
+  bottom: .4rem;
+  min-width: 2rem;
+  padding: .3rem .45rem;
+  font-size: .95rem;
+  font-weight: 800;
+  color: #111;
+  background: var(--lab3-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
+}
+
 .mini-poster { width: 3.5rem; aspect-ratio: var(--poster-ratio); object-fit: cover; }
 .mini-poster-lg { width: 5rem; aspect-ratio: var(--poster-ratio); object-fit: cover; }
 

@@ -104,6 +104,32 @@
                         <a class="btn btn-outline-light" href="https://www.imdb.com/title/@d.ImdbId/" target="_blank" rel="noopener noreferrer">Ver en IMDb ↗</a>
                     }
                 </div>
+
+                @if (Model.MyReview is { } mine)
+                {
+                    var edited = mine.UpdatedAt > mine.CreatedAt.AddMinutes(1);
+                    <div class="my-review mt-4 p-3 rounded-3" data-my-review>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="my-review-score" title="Tu puntaje">@mine.Rating<small>/10</small></span>
+                            <div class="small">
+                                <div class="fw-semibold">Tu review</div>
+                                <div class="text-body-secondary">
+                                    @Display.Date(mine.CreatedAt)@(edited ? " · editada" : "") · ♥ @mine.LikeCount
+                                    @if (mine.HasSpoilers)
+                                    {
+                                        <span class="badge text-bg-danger ms-1">Spoilers</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <p class="review-body my-review-body mb-2">@mine.Body</p>
+                        <div class="small">
+                            <a href="@url/review">Editar</a>
+                            <span class="text-body-secondary mx-1">·</span>
+                            <a href="#reviews" data-show-tab="#reviews">Ver todas las reviews</a>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

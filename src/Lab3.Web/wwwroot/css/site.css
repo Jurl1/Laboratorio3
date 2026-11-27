@@ -124,6 +124,33 @@ html { font-size: 15px; }
 }
 .score-value { font-size: 1.75rem; font-weight: 700; color: var(--lab3-accent); line-height: 1.1; }
 
+/* Tu review dentro del hero del detalle. */
+.my-review {
+  max-width: 46rem;
+  background: rgba(var(--bs-body-bg-rgb), .55);
+  border: 1px solid var(--bs-border-color);
+  border-left: 4px solid var(--lab3-accent);
+  backdrop-filter: blur(2px);
+}
+.my-review-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #111;
+  background: var(--lab3-accent);
+  border-radius: .375rem;
+  padding: .35rem .55rem;
+}
+.my-review-score small { font-size: .7em; font-weight: 700; opacity: .75; }
+/* Hasta 5 líneas; el texto completo está en la pestaña Reviews. */
+.my-review-body {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .cast-row {
   display: grid;
   grid-auto-flow: column;

@@ -368,6 +368,26 @@ public class ReviewAndListTests
     }
 
     [Fact]
+    public async Task Mi_review_aparece_en_el_hero_del_detalle()
+    {
+        using var app = new LabFactory();
+        var a = app.Client();
+        await a.RegisterAsync("ana");
+        Assert.DoesNotContain("data-my-review", await a.GetStringAsync("/titulo/pelicula/603"));
+
+        await a.PostFormAsync("/titulo/pelicula/603/review", "/titulo/pelicula/603/review", Review(7, "Buena, pero las secuelas la arruinan."));
+        var html = await a.GetStringAsync("/titulo/pelicula/603");
+        var hero = html[html.IndexOf("data-my-review", StringComparison.Ordinal)..html.IndexOf("</section>", StringComparison.Ordinal)];
+        Assert.Contains("Tu review", hero);
+        Assert.Contains("7<small>/10</small>", hero);
+        Assert.Contains("Buena, pero las secuelas la arruinan.", hero);
+
+        var b = app.Client();
+        await b.RegisterAsync("beto");
+        Assert.DoesNotContain("data-my-review", await b.GetStringAsync("/titulo/pelicula/603"));
+    }
+
+    [Fact]
     public async Task Anonimo_no_puede_resenar()
     {
         using var app = new LabFactory();

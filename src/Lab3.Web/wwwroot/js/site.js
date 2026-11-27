@@ -113,6 +113,17 @@
     if (msg && !confirm(msg)) e.preventDefault();
   });
 
+  // ---------- Links que abren una pestaña ("Ver todas las reviews") ----------
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-show-tab]");
+    if (!link || !window.bootstrap) return;
+    const trigger = document.querySelector(`[data-bs-target="${CSS.escape(link.dataset.showTab)}"]`);
+    if (!trigger) return;
+    e.preventDefault();
+    bootstrap.Tab.getOrCreateInstance(trigger).show();
+    trigger.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   // ---------- Abrir la pestaña indicada en la URL (#reviews) ----------
   if (location.hash) {
     const trigger = document.querySelector(`[data-bs-target="${CSS.escape(location.hash)}"]`);
